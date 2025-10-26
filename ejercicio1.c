@@ -20,8 +20,8 @@ int main() {
         {9, 10, 11, 12}
     };
 
-    // Llamamos a la función para mostrar la matriz.
-    mostrarMatriz(matrizEjemplo, 3, 4);
+    // Llamamos a la función para mostrar la matriz. Usamos '&matrizEjemplo[0][0]' para pasar la dirección del primer elemento.
+    mostrarMatriz(&matrizEjemplo[0][0], 3, 4);
 
     return 0;
 }
