@@ -3,6 +3,9 @@
 #include <string.h>
 #include <ctype.h>
 
+// Definimos una constante para el máximo de caracteres en una palabra.
+#define MAX_LONGITUD_PALABRA 256
+
 // Función auxiliar para mostrar una guía de uso del programa.
 void mostrarAyuda(const char *nombrePrograma) {
     printf("Este programa permite buscar y reemplazar palabras en un archivo de texto.\n");
@@ -93,14 +96,14 @@ int main(int argc, char *argv[]) {
     char *busquedaProcesada = procesarPalabra(palabraBusqueda);
 
     // Definimos una variable para almacenar temporalmente cada palabra leída del archivo.
-    char palabraLeida[256];
+    char palabraLeida[MAX_LONGITUD_PALABRA];
 
     // Definimos una variable para almacenar temporalmente el índice de la palabra leída, que usaremos para construir la palabra carácter por carácter.
     int indicePalabraLeida = 0;
 
     // Definimos una variable para almacenar temporalmente el carácter actual leído del archivo.
     // NOTA: Usamos int en lugar de char para poder comparar con EOF correctamente.
-    int caracterActual = 0;
+    int caracterActual;
 
     // Leemos el archivo carácter por carácter para manejar correctamente los espacios, la puntuación y los saltos de línea.
     while ((caracterActual = fgetc(archivoEntrada)) != EOF) {
