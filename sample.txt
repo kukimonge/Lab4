@@ -1,0 +1,21 @@
+Hola, esta es una prueba para reemplazar una palabra especificada por el usuario en este archivo.
+
+Para ello, escogeremos la palabra rayo.
+
+Rayo tiene que ser reemplazado por la palabra perro, y la puntuación debe ignorarse.
+
+Rayo rayo rayo %rayo,,,, -rayo- 
+
+
+------rayooooooo ARrayo ARayo RaYo RAYORAYO rayorayo RaYORayoRAyoraYO
+
+RaYO RayoRAyoraYO
+RaYORayo RAyoraYO
+RaYORayoRAyo raYO
+
+RaYO Rayo RAyo raYO
+
+RaYO6 6454Rayo RAyo/raYO/
+
+
+
