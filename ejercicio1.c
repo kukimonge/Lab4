@@ -37,7 +37,7 @@ void ordenarMatriz(int *matriz, int filas, int columnas) {
     while (intercambio != 0) {
         intercambio = 0; // Reiniciamos la variable de intercambio a 0 al inicio de cada recorrido, lo que indica que no se han realizado intercambios aún.
 
-        // Recorremos cada elemento del arreglo, excepto el último (ya que no tiene vecino a la derecha). [3 6 1 5]
+        // Recorremos cada elemento del arreglo, excepto el último (ya que no tiene vecino a la derecha).
         for (int i = 0; i < numeroElementos - 1; i++) {
             // Si el elemento actual es mayor que su vecino, los intercambiamos.
             if (*(matriz + i) > *(matriz + i + 1)) {
@@ -88,7 +88,7 @@ int main() {
     mostrarMatriz(&matrizEjemplo2[0][0], 5, 5);
     printf("\nMatriz Ejemplo 3 (6x2) - Después de ordenar:\n");
     mostrarMatriz(&matrizEjemplo3[0][0], 6, 2);
-    printf ("\n");
+    printf("\n");
 
     // Finalizamos el programa con un valor de retorno 0 para indicar que se ejecutó correctamente.
     return 0;
