@@ -28,7 +28,6 @@ char *procesarPalabra(const char *palabraSinProcesar) {
     // Verificamos que la memoria se haya reservado correctamente.
     if (palabraProcesada == NULL) {
         fprintf(stderr, "ERROR: No se pudo reservar memoria para procesar la palabra.\n");
-        free(palabraProcesada); // Liberamos la memoria en caso de error.
         exit(1); // Detenemos la ejecución del programa con un código de error.
     }
 
@@ -96,23 +95,64 @@ int main(int argc, char *argv[]) {
     // Definimos una variable para almacenar temporalmente cada palabra leída del archivo.
     char palabraLeida[256];
 
-    // Leemos el archivo palabra por palabra para comparar la palabra de búsqueda procesada con cada palabra leída, y usamos la segunda palabra especificada por el usuario para reemplazar las coincidencias encontradas y escribir el resultado en el archivo de salida.
-    while (fscanf(archivoEntrada, "%255s", palabraLeida) == 1) {
-        // Procesamos cada palabra leída antes de compararla con la palabra de búsqueda.
-        char *palabraProcesada = procesarPalabra(palabraLeida);
+    // Definimos una variable para almacenar temporalmente el índice de la palabra leída, que usaremos para construir la palabra carácter por carácter.
+    int indicePalabraLeida = 0;
 
-        // Comparamos esta palabra con la palabra de búsqueda procesada.
-        // NOTA: Usamos strcmp para comparar las cadenas. Si son iguales, strcmp devuelve 0.
-        if (strcmp(palabraProcesada, busquedaProcesada) == 0) {
-            // Si coinciden, escribimos la palabra de reemplazo en el archivo de salida.
-            // NOTA: Usamos "%s " para agregar un espacio después de cada palabra.
-            fprintf(archivoSalida, "%s ", palabraReemplazo);
+    // Definimos una variable para almacenar temporalmente el carácter actual leído del archivo.
+    // NOTA: Usamos int en lugar de char para poder comparar con EOF correctamente.
+    int caracterActual = 0;
+
+    // Leemos el archivo carácter por carácter para manejar correctamente los espacios, la puntuación y los saltos de línea.
+    while ((caracterActual = fgetc(archivoEntrada)) != EOF) {
+        // Si el carácter leído es alfanumérico, lo agregamos a la palabra leída, construyéndola carácter por carácter.
+        if (isalnum((unsigned char)caracterActual)) {
+            // Validamos que no excedamos el tamaño del buffer de la palabra leída.
+            if (indicePalabraLeida >= sizeof(palabraLeida) - 1) {
+                fprintf(stderr, "ERROR: La palabra en el archivo es demasiado larga.\n");
+                fclose(archivoEntrada);
+                fclose(archivoSalida);
+                free(busquedaProcesada);
+                return 1;
+            }
+            palabraLeida[indicePalabraLeida] = (char)caracterActual;
+            indicePalabraLeida++;
         } else {
-            // Si no coinciden, escribimos la palabra original en el archivo de salida.
-            fprintf(archivoSalida, "%s ", palabraLeida);
-        }
+            // Si el carácter leído no es alfanumérico, significa que hemos llegado al final de una palabra, por lo que procesamos la palabra leída.
+            // NOTA: Si el archivo no tiene palabras (si solo contiene espacios o puntuación), no hacemos nada.
+            if (indicePalabraLeida > 0) {
+                palabraLeida[indicePalabraLeida] = '\0'; // Agregamos el carácter nulo al final de la palabra leída.
 
-        // Liberamos la memoria asignada para la palabra procesada.
+                // Procesamos la palabra leída antes de compararla con la palabra de búsqueda.
+                char *palabraProcesada = procesarPalabra(palabraLeida);
+
+                // Comparamos con la palabra de búsqueda procesada.
+                // NOTA: Usamos strcmp para comparar las cadenas. Si son iguales, strcmp devuelve 0.
+                if (strcmp(palabraProcesada, busquedaProcesada) == 0) {
+                    // Si coinciden, escribimos la palabra de reemplazo en el archivo de salida.
+                    fprintf(archivoSalida, "%s", palabraReemplazo);
+                } else {
+                    // Si no coinciden, escribimos la palabra original en el archivo de salida.
+                    fprintf(archivoSalida, "%s", palabraLeida);
+                }
+                // Liberamos la memoria asignada para la palabra procesada.
+                free(palabraProcesada);
+
+                // Reiniciamos el índice de la palabra leída para la siguiente palabra.
+                indicePalabraLeida = 0;
+            }
+            // Una vez procesada la palabra, escribimos el carácter no alfanumérico actual (espacio, puntuación, salto de línea, etc.) directamente en el archivo de salida.
+            fputc(caracterActual, archivoSalida);
+        }
+    }
+    // Si al finalizar el while loop hay una palabra pendiente por procesar (en caso de que el archivo no termine con un carácter no alfanumérico), la procesamos aquí.
+    if (indicePalabraLeida > 0) {
+        palabraLeida[indicePalabraLeida] = '\0'; // Agregamos el carácter nulo al final de la palabra leída.
+        char *palabraProcesada = procesarPalabra(palabraLeida);
+        if (strcmp(palabraProcesada, busquedaProcesada) == 0) {
+            fprintf(archivoSalida, "%s", palabraReemplazo);
+        } else {
+            fprintf(archivoSalida, "%s", palabraLeida);
+        }
         free(palabraProcesada);
     }
 
@@ -120,6 +160,8 @@ int main(int argc, char *argv[]) {
     free(busquedaProcesada);
     fclose(archivoEntrada);
     fclose(archivoSalida);
+
+    printf("Archivo procesado exitosamente. Resultados guardados en 'archivoEditado.txt'\n\n");
 
     return 0;
 }
