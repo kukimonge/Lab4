@@ -12,7 +12,7 @@ void mostrarAyuda(const char *nombrePrograma) {
 
 // Función para procesar una palabra en el archivo que se está leyendo.
 // NOTA: Para cada palabra leída en el archivo, esta función elimina temporalmente los signos de puntuación adyacentes y convierte la palabra a minúsculas, para facilitar la comparación con la palabra buscada. Finalmente, se devuelve la palabra procesada.
-char *procesarPalabra(char *palabraSinProcesar) {
+char *procesarPalabra(const char *palabraSinProcesar) {
     // Definimos una variable para almacenar la longitud de la palabra sin procesar.
     // NOTA: Esto nos ayudará a reservar memoria para la palabra procesada.
     int longitudEntrada = strlen(palabraSinProcesar);
@@ -62,8 +62,8 @@ int main(int argc, char *argv[]) {
 
     // Definimos tres variables para procesar los argumentos pasados al programa.
     const char *nombreArchivo = argv[1];
-    const char *palabraBuscada = argv[2];
-    const char *reemplazoPalabra = argv[3];
+    const char *palabraBusqueda = argv[2];
+    const char *palabraReemplazo = argv[3];
 
     // Abrimos el archivo especificado por el usuario en modo lectura y verificamos que se haya abierto correctamente.
     FILE *archivoEntrada = fopen(nombreArchivo, "r");
@@ -74,7 +74,7 @@ int main(int argc, char *argv[]) {
     }
 
     // Verificamos que la palabra a buscar no esté vacía.
-    if (strlen(palabraBuscada) == 0) {
+    if (strlen(palabraBusqueda) == 0) {
         fprintf(stderr, "ERROR: La palabra a buscar no puede estar vacía.\n");
         mostrarAyuda(argv[0]);
         fclose(archivoEntrada); // Cerramos el archivo antes de detener la ejecución.
@@ -90,7 +90,34 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    // Cerramos el archivo de entrada y salida al finalizar.
+    // Procesamos la palabra a buscar para compararla en minúsculas y sin signos de puntuación.
+    char *busquedaProcesada = procesarPalabra(palabraBusqueda);
+
+    // Definimos una variable para almacenar temporalmente cada palabra leída del archivo.
+    char palabraLeida[256];
+
+    // Leemos el archivo palabra por palabra para comparar la palabra de búsqueda procesada con cada palabra leída, y usamos la segunda palabra especificada por el usuario para reemplazar las coincidencias encontradas y escribir el resultado en el archivo de salida.
+    while (fscanf(archivoEntrada, "%255s", palabraLeida) == 1) {
+        // Procesamos cada palabra leída antes de compararla con la palabra de búsqueda.
+        char *palabraProcesada = procesarPalabra(palabraLeida);
+
+        // Comparamos esta palabra con la palabra de búsqueda procesada.
+        // NOTA: Usamos strcmp para comparar las cadenas. Si son iguales, strcmp devuelve 0.
+        if (strcmp(palabraProcesada, busquedaProcesada) == 0) {
+            // Si coinciden, escribimos la palabra de reemplazo en el archivo de salida.
+            // NOTA: Usamos "%s " para agregar un espacio después de cada palabra.
+            fprintf(archivoSalida, "%s ", palabraReemplazo);
+        } else {
+            // Si no coinciden, escribimos la palabra original en el archivo de salida.
+            fprintf(archivoSalida, "%s ", palabraLeida);
+        }
+
+        // Liberamos la memoria asignada para la palabra procesada.
+        free(palabraProcesada);
+    }
+
+    // Liberamos memoria y cerramos los archivos de entrada y salida al finalizar.
+    free(busquedaProcesada);
     fclose(archivoEntrada);
     fclose(archivoSalida);
 
